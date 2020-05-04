@@ -21,7 +21,7 @@ The server runs on port `8787`.
 
 The string should be posted on `/hash` end point in the `json` format.
 ```
-{ data : "your string here"}
+{ "data" : "your string here"}
 ````
 
 For example using httpie
@@ -30,5 +30,5 @@ http -v localhost:8787 data="your string"
 ```
 The response is returned in `json` format as:
 ```
-{ hash : "string concatanated with number such that sha256 is less than target`" }
+{ "hash" : "string concatanated with number such that sha256 is less than target" }
 ```
