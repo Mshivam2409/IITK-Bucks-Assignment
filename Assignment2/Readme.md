@@ -2,7 +2,7 @@
 
 ### Choosing the Input
 
-Choose the data from `input.json`
+Choose the data from `data.json`
 The `original text` is the `unencrypted text` and then the `encrypted text`.
 
 ### Sample Input
@@ -23,7 +23,7 @@ Encrypted text :
 Run the command in terminal
 
 ```
-python3 index.py`
+python3 verify.py`
 ```
 
 
