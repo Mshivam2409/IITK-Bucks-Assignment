@@ -5,7 +5,8 @@ import binascii
 
 f = open('myPrivateKey.pem','r')
 key = RSA.import_key(f.read())
-msg = b'Love'
+msg = input("Enter the message to encrypt : ")
+msg = msg.encode('ASCII')
 hash = SHA256.new(msg)
 signer = PKCS115_SigScheme(key)
 signature = signer.sign(hash)
