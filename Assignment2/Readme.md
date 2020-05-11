@@ -2,9 +2,10 @@
 
 ## Installing Dependencies
 
-Run the following command to install dependencies:
+Run the following commands to install dependencies:
 ```
 npm install
+pip3 install -r requirements.txt
 ```
 
 ## Choosing the Input
