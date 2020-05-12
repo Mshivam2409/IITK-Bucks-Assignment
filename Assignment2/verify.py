@@ -1,5 +1,5 @@
 from Crypto.PublicKey import RSA
-from Crypto.Signature.pkcs1_15 import PKCS115_SigScheme
+from Crypto.Signature import pss
 from Crypto.Hash import SHA256
 import binascii
 import sys 
@@ -14,7 +14,7 @@ encrypted=sys.argv[3]
 fencrypt=encrypted.encode('ASCII')
 fans=binascii.unhexlify(fencrypt)
 hash = SHA256.new(fmsg)
-verifier = PKCS115_SigScheme(crt)
+verifier = pss.new(crt)
 try:
     verifier.verify(hash,fans)
     print("Signature is valid.")
