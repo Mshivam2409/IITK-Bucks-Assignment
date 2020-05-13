@@ -10,7 +10,7 @@ const rl = readline.createInterface({
 });
 class Transaction {
   constructor(numInput, numOutput) {
-    this.transcationId = 0x0;
+    this.transactionId = 0x0;
     this.numInput = numInput;
     this.numInput = numOutput;
     this.inputs = [];

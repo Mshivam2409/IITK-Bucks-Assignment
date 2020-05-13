@@ -32,7 +32,7 @@ const main = async () => {
   var hash = crypto.createHash("sha256");
   hash_update = hash.update(newbuff, "binary");
   generated_hash = hash_update.digest("hex");
-  transactions.transcationId = generated_hash;
+  transactions.transactionId = generated_hash;
   var buf10 = int256.int256toBytes(transactions.transcationId);
   flist.push(buf10, newbuff);
   var fbuff = Buffer.concat(flist);
