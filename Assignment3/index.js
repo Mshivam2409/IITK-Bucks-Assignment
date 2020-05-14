@@ -10,7 +10,6 @@ const main = async () => {
   const transactions = await Transac.createTransaction();
 
   var list = [];
-  var flist = [];
   var buf1 = num32.numto32(transactions.inputs.length.toString());
   list.push(buf1);
   for (var i = 0; i < transactions.inputs.length; i++) {
@@ -33,17 +32,14 @@ const main = async () => {
   hash_update = hash.update(newbuff, "binary");
   generated_hash = hash_update.digest("hex");
   transactions.transactionId = generated_hash;
-  var buf10 = int256.int256toBytes(transactions.transcationId);
-  flist.push(buf10, newbuff);
-  var fbuff = Buffer.concat(flist);
   console.log(transactions);
-  console.log(fbuff);
+  console.log(newbuff);
 
   var filePath = "./bin/" + generated_hash + ".dat";
 
   fs.closeSync(fs.openSync(filePath, "w"));
   var wstream = fs.createWriteStream(filePath);
-  wstream.write(fbuff);
+  wstream.write(newbuff);
   wstream.end();
 };
 
