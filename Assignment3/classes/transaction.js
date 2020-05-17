@@ -99,7 +99,7 @@ module.exports = class Transaction {
     for (let i = 1; i <= numInput; i++) {
       const newInput = new Input();
       newInput.transactionId = hexString.fromBuffer(
-        buff.slice(index, index + 32)
+        Buff.slice(index, index + 32)
       );
       index = index + 32;
       newInput.index = intString.fromBuffer(Buff.slice(index, index + 4));
@@ -111,7 +111,7 @@ module.exports = class Transaction {
       index = index + (lenSign);
       this.inputs.push(newInput)
     }
-    const numOutputStr = int.fromBuffer(Buff.slice(index, index + 4));
+    const numOutputStr = intString.fromBuffer(Buff.slice(index, index + 4));
     index = index + 4;
     const numOutput = parseInt(numOutputStr);
     this.numOutput = numOutput
@@ -140,10 +140,12 @@ module.exports = class Transaction {
     console.log("Transaction Id :",this.transactionId);
     console.log("\tNumber of Inputs :",this.inputs.length);
     for (let index = 0; index < this.inputs.length; index++) {
+      console.log("\t\tInput",index+1)
       await this.inputs[index].print(); 
     }
     console.log("\tNumber of Outputs :",this.numOutput);
     for (let index = 0; index < this.outputs.length; index++) {
+      console.log("\t\tOutput",+1)
       await this.outputs[index].print(); 
     }
   }
