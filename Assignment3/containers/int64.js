@@ -1,4 +1,4 @@
-const numto64 = (str) => {
+const toBuffer = (str) => {
   var bignum = require("bignum");
   var num = bignum(str);
   var int64buffer = num.toBuffer({
@@ -8,4 +8,4 @@ const numto64 = (str) => {
   return int64buffer;
 };
 
-exports.numto64 = numto64;
+exports.toBuffer = toBuffer;

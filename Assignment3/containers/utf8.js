@@ -1,4 +1,4 @@
-const String2Byte = (str) => {
+const toBuffer = (str) => {
   var utf8 = unescape(encodeURIComponent(str));
   var arr = [];
   for (var i = 0; i < utf8.length; i++) {
@@ -7,4 +7,4 @@ const String2Byte = (str) => {
   return Buffer.from(arr);
 };
 
-exports.String2Byte = String2Byte;
+exports.toBuffer = toBuffer;
