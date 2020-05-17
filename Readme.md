@@ -40,14 +40,14 @@ This is the essence of mining. You try to find such an input for a function whic
 
 
 Also, if you change even a single bit in the input, the generated output is very different from the earlier output. For example:
-```r
+```java
 SHA256("dryairship1") = f869c8d9dec84d39ed2afa0001aade4c9045c477a1f8729cec92f32c982d0d6e
 SHA256("dryairship2") = 985f4c5e0429a0c53e2230ce65eefd2f77eb48aa94cb47bd9172baa0d9f22ad8
 SHA256("dryairship3") = bfb1120349742e156c243fa2909e09313da3c5ba7d815db9810ed7d757168a29
 ```
 
 Here, we had some constant data `dryairship`, and a changing value *(the number at the end)*. Mining is the process of finding this changing value that when combined with our data *("dryairship" in our case)* will produce an output below the target. Since the range of `SHA256` hash function is huge, the target chosen is very high. If we chose the target to be `0x0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`, the smallest positive integer that satisfies our target is 16962.
-```r
+```java
 SHA256("dryairship16962") = 000032939d7b1788583856044a76a79129b7c52ecb3ef63f384d09b9dd6787b5`
 ```
 As soon as we find this magic number `16962`, we have achieved success.
