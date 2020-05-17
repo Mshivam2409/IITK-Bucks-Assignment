@@ -1,29 +1,50 @@
 const Input = require("./input");
 const Output = require("./output");
 const readline = require("readline");
-const fs = require("fs");
+const crypto = require("crypto");
+const intString = require("../generators/int");
+const hexString = require("../generators/hexString");
+const utf8String = require("../generators/utf8String");
+const int32 = require('../containers/int32')
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false,
-});
-class Transaction {
-  constructor(numInput, numOutput) {
-    this.transactionId = 0x0;
+module.exports = class Transaction {
+  constructor(numInput = 0, numOutput = 0) {
+    this.transactionId = "";
     this.numInput = numInput;
-    this.numInput = numOutput;
+    this.numOutput = numOutput;
     this.inputs = [];
     this.outputs = [];
+    this.bufferList = [];
+    this.buffer = Buffer.alloc(0);
   }
 
-  async addInput() {
-    var transactionId, index, lenSign, signature;
+  async addInput(transactionId, index, signature) {
+    const newInput = new Input(
+      transactionId,
+      index,
+      signature.length.toString(),
+      signature
+    );
+    this.inputs.push(newInput);
+  }
+
+  async addOutput(noofcoins, keydata) {
+    const newInput = new Output(noofcoins, keydata.length.toString(), keydata);
+    this.outputs.push(newInput);
+  }
+
+  async createTransactionfromUser() {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false,
+    });
+    var numInput=0, numOutput=0;
 
     const question1 = () => {
       return new Promise((resolve, reject) => {
-        rl.question("Enter the transaction id ", (answer) => {
-          transactionId = answer;
+        rl.question("Enter the number of inputs :", (answer) => {
+          numInput = answer;
           resolve();
         });
       });
@@ -31,98 +52,102 @@ class Transaction {
 
     const question2 = () => {
       return new Promise((resolve, reject) => {
-        rl.question("Enter the index ", (answer) => {
-          index = answer;
-          resolve();
-        });
-      });
-    };
-
-    const question3 = () => {
-      return new Promise((resolve, reject) => {
-        rl.question("Enter the signature ", (answer) => {
-          signature = answer.toString();
+        rl.question("Enter the number of outputs :", (answer) => {
+          numOutput = answer;
           resolve();
         });
       });
     };
     await question1();
     await question2();
-    await question3();
-
-    lenSign = signature.length.toString();
-
-    const input = new Input(transactionId, index, lenSign, signature);
-    this.inputs.push(input);
-  }
-
-  async addOutput() {
-    var noofcoins, lenPubKey, pubKey, keydata;
-
-    const question1 = () => {
-      return new Promise((resolve, reject) => {
-        rl.question("Enter the number of coins ", (answer) => {
-          noofcoins = answer;
-          resolve();
-        });
-      });
-    };
-
-    const question2 = () => {
-      return new Promise((resolve, reject) => {
-        rl.question("Enter the path of public key ", (answer) => {
-          pubKey = answer.toString();
-          resolve();
-        });
-      });
-    };
-
-    await question1();
-    await question2();
-
-    try {
-      const data = fs.readFileSync(pubKey, "utf8");
-      keydata = data.toString();
-      lenPubKey = data.length.toString();
-    } catch (err) {
-      console.error(err);
+    rl.close();
+    this.bufferList = [];
+    this.bufferList.push(int32.toBuffer(numInput.toString()))
+    for (var i = 0; i < numInput; i++) {
+      const newInput = new Input();
+      await newInput.createInputfromUser();
+      this.inputs.push(newInput);
+      this.bufferList.push(newInput.buffer)
     }
-    const output = new Output(noofcoins, lenPubKey, keydata);
-    this.outputs.push(output);
-  }
-}
+    this.bufferList.push(int32.toBuffer(numOutput.toString()))
+    for (var i = 0; i < numOutput; i++) {
+      const newOutput = new Output();
+      await newOutput.createOutputfromUser();
+      this.outputs.push(newOutput);
+      this.bufferList.push(newOutput.buffer);
+    }
 
-const createTransaction = async () => {
-  var numInput, numOutput;
-  const question1 = () => {
-    return new Promise((resolve, reject) => {
-      rl.question("Enter the number of inputs ", (answer) => {
-        numInput = answer;
-        resolve();
-      });
-    });
-  };
-
-  const question2 = () => {
-    return new Promise((resolve, reject) => {
-      rl.question("Enter the number of outputs ", (answer) => {
-        numOutput = answer;
-        resolve();
-      });
-    });
-  };
-  await question1();
-  await question2();
-
-  const transaction = new Transaction(numInput, numOutput);
-  for (var i = 0; i < numInput; i++) {
-    await transaction.addInput();
+    this.buffer = Buffer.concat(this.bufferList)
+    this.numInput = parseInt(numInput)
+    this.numOutput = parseInt(numOutput)
+    await this.updateTransactionId();
   }
-  for (var i = 0; i < numOutput; i++) {
-    await transaction.addOutput();
+
+  async createTransactionfromBuffer(Buff) {
+    this.buffer = Buff;
+    this.bufferList = [];
+    this.bufferList.push(Buff);
+    var hash = crypto.createHash("sha256");
+    var hash_update = hash.update(Buff, "binary");
+    var generated_hash = hash_update.digest("hex");
+    this.transactionId = generated_hash.toString();
+    var index = 0;
+    const numInputStr = intString.fromBuffer(Buff.slice(index, index + 4));
+    index = index + 4;
+    const numInput = parseInt(numInputStr);
+    this.numInput = numInput;
+    for (let i = 1; i <= numInput; i++) {
+      const newInput = new Input();
+      newInput.transactionId = hexString.fromBuffer(
+        Buff.slice(index, index + 32)
+      );
+      index = index + 32;
+      newInput.index = intString.fromBuffer(Buff.slice(index, index + 4));
+      index = index + 4;
+      newInput.lenSign = intString.fromBuffer(Buff.slice(index, index + 4))
+      const lenSign = parseInt(newInput.lenSign)
+      index = index + 4;
+      newInput.signature = hexString.fromBuffer(Buff.slice(index, index + (lenSign)))
+      index = index + (lenSign);
+      this.inputs.push(newInput)
+    }
+    const numOutputStr = intString.fromBuffer(Buff.slice(index, index + 4));
+    index = index + 4;
+    const numOutput = parseInt(numOutputStr);
+    this.numOutput = numOutput
+    for (let i = 1; i <= numOutput; i++) {
+      const newOutput = new Output();
+      newOutput.noOfcoins = intString.fromBuffer(Buff.slice(index,index+8))
+      index = index + 8;
+      newOutput.lenPubKey = intString.fromBuffer(Buff.slice(index,index+4))
+      const lenKey = parseInt(newOutput.lenPubKey);
+      index = index + 4;
+      newOutput.pubKey = utf8String.fromBuffer(Buff.slice(index, index + lenKey))
+      index = index + lenKey;
+      this.outputs.push(newOutput)
+    }
   }
-  rl.close();
-  return transaction;
+  toBuffer() {
+    return this.buffer;
+  }
+  async updateTransactionId() {
+    var hash = crypto.createHash("sha256");
+    var hash_update = hash.update(this.buffer, "binary");
+    var generated_hash = hash_update.digest("hex");
+    this.transactionId = generated_hash.toString();
+  }
+  async print() {
+    console.log("Transaction Id :",this.transactionId);
+    console.log("\tNumber of Inputs :",this.inputs.length);
+    for (let index = 0; index < this.inputs.length; index++) {
+      console.log("\t\tInput",index+1)
+      await this.inputs[index].print(); 
+    }
+    console.log("\tNumber of Outputs :",this.numOutput);
+    for (let index = 0; index < this.outputs.length; index++) {
+      console.log("\t\tOutput",index+1)
+      await this.outputs[index].print(); 
+    }
+  }
 };
 
-exports.createTransaction = createTransaction;
