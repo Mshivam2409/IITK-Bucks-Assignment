@@ -1,0 +1,21 @@
+{
+  "name": "assignment3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  },
+  "dependencies": {
+    "bignum": "^0.13.1",
+    "fs": "0.0.1-security",
+    "int64-buffer": "^0.99.1007",
+    "readline": "^1.3.0"
+  }
+}
