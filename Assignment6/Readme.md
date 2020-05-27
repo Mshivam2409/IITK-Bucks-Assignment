@@ -28,6 +28,7 @@ Edit the included `peers.json` file to add or remove peers.
 node index.js
 ```
 ## Interacting with the server
+The server runs on port `3492` and has __2__ endpoints.
 
 __`/add`__ : This endpoint will accept POST requests containing JSON encoded data in the following format:
 ```
